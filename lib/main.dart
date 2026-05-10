@@ -63,7 +63,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _connectWs() {
     final pin = widget.api.pin ?? '';
-    _ws.connect(_host, _port, pin);
+    final wsPort = _port == 5001 ? 5002 : _port + 1;
+    _ws.connect(_host, wsPort, pin);
   }
 
   @override
