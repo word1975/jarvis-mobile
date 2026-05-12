@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
+import '../services/websocket_service.dart';
+import '../models/message.dart';
+import '../src/default_config.dart' show DefaultConfig;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -25,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _loadSaved() async {
     final prefs = await SharedPreferences.getInstance();
-    _hostController.text = prefs.getString('jarvis_host') ?? '';
+    _hostController.text = prefs.getString('jarvis_host') ?? DefaultConfig.host;
   }
 
   Future<void> _saveHost() async {
@@ -35,8 +38,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _tryConnect(String host) async {
     if (host.isEmpty) {
-      setState(() => _statusMsg = '请输入IP地址');
-      return;
+      setState(() => _statusMsg = host.isEmpty && DefaultConfig.host.isNotEmpty
+          ? '正在使用默认地址 $DefaultConfig.host...'
+          : '请输入IP地址');
+      if (host.isEmpty && DefaultConfig.host.isNotEmpty) {
+        host = DefaultConfig.host;
+        _hostController.text = host;
+      } else if (host.isEmpty) {
+        return;
+      }
     }
     setState(() {
       _connecting = true;

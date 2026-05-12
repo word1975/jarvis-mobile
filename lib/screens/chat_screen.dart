@@ -57,10 +57,10 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() => _sending = true);
     widget.ws.sendMessage(text);
 
-    widget.api.sendCommand(text).then((_) {
-      if (mounted) setState(() => _sending = false);
-    }).catchError((_) {
-      if (mounted) setState(() => _sending = false);
+    Future.delayed(const Duration(seconds: 10), () {
+      if (mounted && _sending) {
+        setState(() => _sending = false);
+      }
     });
   }
 
