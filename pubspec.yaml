@@ -1,5 +1,5 @@
 name: jarvis_mobile
-description: "Jarvis 手机端远程控制App"
+description: "Jarvis 手机端远程控制App — 通过互联网或局域网远程连接电脑，支持实时聊天、文件传输、远程截屏、系统监控等功能"
 publish_to: 'none'
 version: 1.0.0+1
 

@@ -29,6 +29,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _loadSaved() async {
     final prefs = await SharedPreferences.getInstance();
     _hostController.text = prefs.getString('jarvis_host') ?? DefaultConfig.host;
+    if (DefaultConfig.hasPublicUrl && _hostController.text == DefaultConfig.host) {
+      setState(() => _statusMsg = '🌐 检测到公网地址，可一键连接');
+    }
   }
 
   Future<void> _saveHost() async {
@@ -144,6 +147,28 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ],
                 const SizedBox(height: 24),
+                if (DefaultConfig.hasPublicUrl) ...[
+                  SizedBox(
+                    width: double.infinity,
+                    height: 44,
+                    child: OutlinedButton.icon(
+                      onPressed: _connecting
+                          ? null
+                          : () => _tryConnect(DefaultConfig.publicUrl),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF4CAF50),
+                        side: const BorderSide(color: Color(0xFF4CAF50)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      icon: const Icon(Icons.public, size: 18),
+                      label: const Text('🌐 通过公网连接',
+                          style: TextStyle(fontSize: 15)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 SizedBox(
                   width: double.infinity,
                   height: 52,

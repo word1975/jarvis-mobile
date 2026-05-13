@@ -17,12 +17,13 @@ class WebSocketService {
   Stream<bool> get connectionState => _connectionController.stream;
   bool get isConnected => _connected;
 
-  void connect(String host, int port, String pin) {
+  void connect(String host, int port, String pin, {bool useSsl = false}) {
     _pin = pin;
     disconnect();
 
     try {
-      final uri = Uri.parse('ws://$host:$port/ws');
+      final scheme = useSsl ? 'wss' : 'ws';
+      final uri = Uri.parse('$scheme://$host:$port/ws');
       _channel = WebSocketChannel.connect(uri);
 
       _channel!.stream.listen(

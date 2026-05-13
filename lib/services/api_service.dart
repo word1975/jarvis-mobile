@@ -11,15 +11,22 @@ class ApiService {
   bool _authenticated = false;
 
   ApiService({required String host, int port = 5001, String? pin})
-      : _baseUrl = 'http://$host:$port',
+      : _baseUrl = _normalizeUrl(host, port),
         _pin = pin;
+
+  static String _normalizeUrl(String host, int port) {
+    if (host.startsWith('http://') || host.startsWith('https://')) {
+      return host.endsWith('/') ? host.substring(0, host.length - 1) : host;
+    }
+    return 'http://$host:$port';
+  }
 
   String get baseUrl => _baseUrl;
   bool get isAuthenticated => _authenticated;
   String? get pin => _pin;
 
   void updateHost(String host, {int port = 5001}) {
-    _baseUrl = 'http://$host:$port';
+    _baseUrl = _normalizeUrl(host, port);
     _authenticated = false;
   }
 

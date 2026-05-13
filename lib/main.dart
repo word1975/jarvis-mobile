@@ -64,7 +64,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void _connectWs() {
     final pin = widget.api.pin ?? '';
     final wsPort = _port == 5001 ? 5002 : _port + 1;
-    _ws.connect(_host, wsPort, pin);
+    if (_host.startsWith('https://') || widget.api.baseUrl.startsWith('https://')) {
+      _ws.connect(_host, _port == 443 ? 443 : wsPort, pin, useSsl: true);
+    } else {
+      _ws.connect(_host, wsPort, pin);
+    }
   }
 
   @override
