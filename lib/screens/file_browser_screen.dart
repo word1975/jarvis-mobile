@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import '../models/message.dart';
 import '../services/api_service.dart';
 
@@ -70,21 +69,57 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
     }
   }
 
-  Future<void> _uploadFile() async {
-    final result = await FilePicker.platform.pickFiles();
-    if (result != null && result.files.isNotEmpty) {
-      final filePath = result.files.single.path;
-      if (filePath != null) {
-        setState(() => _statusMsg = '正在上传...');
-        final ok = await widget.api.uploadFile(filePath, destDir: _currentPath);
-        if (ok && mounted) {
-          setState(() => _statusMsg = '✅ 上传成功');
-          _loadPath(_currentPath);
-        } else if (mounted) {
-          setState(() => _statusMsg = '❌ 上传失败');
-        }
-      }
-    }
+  void _showUploadDialog() {
+    final pathController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF16213e),
+        title: const Text('上传文件', style: TextStyle(color: Colors.white)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('输入电脑上要上传的文件路径',
+                style: TextStyle(color: Colors.grey, fontSize: 13)),
+            const SizedBox(height: 12),
+            TextField(
+              controller: pathController,
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+              decoration: InputDecoration(
+                hintText: 'C:\\文件.txt',
+                hintStyle: TextStyle(color: Colors.grey[600]),
+                filled: true,
+                fillColor: const Color(0xFF1a1a2e),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('取消', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              final filePath = pathController.text.trim();
+              if (filePath.isEmpty) return;
+              setState(() => _statusMsg = '正在上传...');
+              final ok = await widget.api.uploadFile(filePath, destDir: _currentPath);
+              if (ok && mounted) {
+                setState(() => _statusMsg = '✅ 上传成功');
+                _loadPath(_currentPath);
+              } else if (mounted) {
+                setState(() => _statusMsg = '❌ 上传失败');
+              }
+            },
+            child: const Text('上传', style: TextStyle(color: Color(0xFFe94560))),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -193,7 +228,7 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
               Expanded(child: Text('${_entries.length} 个项目',
                   style: TextStyle(color: Colors.grey[500], fontSize: 13))),
               ElevatedButton.icon(
-                onPressed: _uploadFile,
+                onPressed: _showUploadDialog,
                 icon: const Icon(Icons.upload_file, size: 18),
                 label: const Text('上传文件'),
                 style: ElevatedButton.styleFrom(
